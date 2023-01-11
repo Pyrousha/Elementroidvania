@@ -6,14 +6,22 @@ public class PlayerController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Rigidbody2D rb;
+    [SerializeField] private BoxCollider2D col;
 
     [Header("Parameters")]
     [SerializeField] private float accelSpeed;
     [SerializeField] private float frictionSpeed;
     [SerializeField] private float maxSpeed;
     [SerializeField] private float jumpPower;
+    [Space(5)]
+    [SerializeField] private float gravUp;
+    [SerializeField] private float gravDown;
+    [SerializeField] private float spaceReleaseGravMult;
+    [Space(5)]
+    [SerializeField] private LayerMask terrainLayer;
 
     private float xSpeed = 0;
+    private bool grounded = false;
 
     // Start is called before the first frame update
     void Start()
@@ -56,14 +64,30 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        //Ground checking
+        grounded = Physics2D.BoxCast(col.bounds.center, col.bounds.size * 0.95f, 0f, Vector2.down, 0.2f, terrainLayer);
+
 
         //Jump
-        if (InputHandler.Instance.Jump.down)
+        if (InputHandler.Instance.Jump.down && grounded)
         {
             Debug.Log("jump");
             rb.velocity = new Vector2(xSpeed, jumpPower);
         }
         else
             rb.velocity = new Vector2(xSpeed, rb.velocity.y);
+
+
+        //Space release gravity
+        if (InputHandler.Instance.Jump.released && rb.velocity.y > 0)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * spaceReleaseGravMult);
+        }
+
+        //Gravity
+        if (InputHandler.Instance.Jump.held && rb.velocity.y > 0)
+            rb.velocity -= new Vector2(0, gravUp * Time.deltaTime);
+        else
+            rb.velocity -= new Vector2(0, gravDown * Time.deltaTime);
     }
 }
