@@ -9,6 +9,10 @@ public class Player_CamBoundsTrigger : MonoBehaviour
 
     private float zOffset = -10f;
 
+    private Coroutine currLerp = null;
+    private bool isCurrLerpNull = true;
+    private float lerpSpeed = 1.5f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -18,18 +22,14 @@ public class Player_CamBoundsTrigger : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector3 targCamPos = transform.position + new Vector3(0, 0, zOffset); //Default camera position to center on player
+        if ((currLerp != null) || (!isCurrLerpNull))
+            return; //Don't move camera if lerping
+
+
         if (currCamBounds != null)
-        {
-            //Use current bounds (room) to keep camera from going through walls
-            float targX = Mathf.Clamp(transform.position.x, currCamBounds.Left, currCamBounds.Right);
-            float targY = Mathf.Clamp(transform.position.y, currCamBounds.Bottom, currCamBounds.Top);
-            targCamPos = new Vector3(targX, targY, zOffset);
-        }
-
-        Debug.Log(targCamPos);
-
-        cameraTransform.position = targCamPos;
+            cameraTransform.position = currCamBounds.ClampPosition(new Vector3(transform.position.x, transform.position.y, zOffset));
+        else
+            cameraTransform.position = new Vector3(transform.position.x, transform.position.y, zOffset); //Default camera position to center on player
     }
 
     /// <summary>
@@ -38,6 +38,46 @@ public class Player_CamBoundsTrigger : MonoBehaviour
     /// <param name="_collider2D"></param>
     void OnTriggerEnter2D(Collider2D _collider2D)
     {
-        currCamBounds = _collider2D.GetComponent<CameraBounds>();
+        CameraBounds newCamBounds = _collider2D.GetComponent<CameraBounds>();
+        if (newCamBounds == currCamBounds)
+            return;
+
+        currCamBounds = newCamBounds;
+
+        //Lerp to new bounds
+        if (currLerp != null)
+        {
+            //If already lerping, stop that lerp and start this one
+            StopCoroutine(currLerp);
+        }
+
+        Vector3 endLerpCamPos = currCamBounds.ClampPosition(new Vector3(transform.position.x, transform.position.y, zOffset));
+        currLerp = StartCoroutine(LerpToNewScreen(endLerpCamPos));
+        isCurrLerpNull = false;
+    }
+
+    IEnumerator LerpToNewScreen(Vector3 _targPos)
+    {
+        while (true)
+        {
+            float currDist = Vector3.Distance(cameraTransform.position, _targPos);
+            if (currDist > 0.1f)
+            {
+                //Not close enough, keep lerping
+                Vector3 newPos = Vector3.Lerp(cameraTransform.position, _targPos, lerpSpeed / currDist);
+                newPos.z = zOffset;
+                cameraTransform.position = newPos;
+            }
+            else
+                break;
+
+            yield return null;
+        }
+
+        //Close enough, end lerp
+        cameraTransform.position = _targPos;
+        currLerp = null;
+        Debug.Log("Set Curr Lerp to Null");
+        isCurrLerpNull = true;
     }
 }
