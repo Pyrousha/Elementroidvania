@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : Singleton<PlayerController>
 {
     [Header("References")]
     [SerializeField] private Rigidbody2D rb;
@@ -22,6 +22,7 @@ public class PlayerController : MonoBehaviour
 
     private float xSpeed = 0;
     private bool grounded = false;
+    private float epsilon = 0.05f;
 
     // Start is called before the first frame update
     void Start()
@@ -37,14 +38,9 @@ public class PlayerController : MonoBehaviour
         if (xSpeed < 0)
             sign = -1;
 
-        //Subtract friction and update speed
-        float newSpeedMagnitude = Mathf.Max(0, Mathf.Abs(xSpeed) - frictionSpeed * Time.deltaTime);
-        xSpeed = newSpeedMagnitude * sign;
-
-
         //Accelerate
         float inputX = InputHandler.Instance.Direction.x;
-        if (inputX < 0)
+        if (inputX < -epsilon) //Pressing left
         {
             if (xSpeed > -maxSpeed)
             {
@@ -54,13 +50,19 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            if (inputX > 0)
+            if (inputX > epsilon) //Pressing right
             {
                 if (xSpeed < maxSpeed)
                 {
                     //Can still accelerate to the right (but do not exceed max)
                     xSpeed = Mathf.Min(maxSpeed, xSpeed + accelSpeed * inputX * Time.deltaTime);
                 }
+            }
+            else //pressing nothing
+            {
+                //Not pressing anything, subtract friction and update speed
+                float newSpeedMagnitude = Mathf.Max(0, Mathf.Abs(xSpeed) - frictionSpeed * Time.deltaTime);
+                xSpeed = newSpeedMagnitude * sign;
             }
         }
 
@@ -71,7 +73,6 @@ public class PlayerController : MonoBehaviour
         //Jump
         if (InputHandler.Instance.Jump.down && grounded)
         {
-            Debug.Log("jump");
             rb.velocity = new Vector2(xSpeed, jumpPower);
         }
         else
