@@ -7,6 +7,14 @@ public class PlayerController : Singleton<PlayerController>
     [Header("References")]
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private BoxCollider2D col;
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private Animator anim;
+    private string currentState;
+
+    //Animation states
+    const string PLAYER_IDLE = "Player_Idle";
+    const string PLAYER_JUMP_UP = "Player_Jump_Up";
+    const string PLAYER_JUMP_DOWN = "Player_Jump_Down";
 
     [Header("Parameters")]
     [SerializeField] private float accelSpeed;
@@ -22,7 +30,11 @@ public class PlayerController : Singleton<PlayerController>
 
     private float xSpeed = 0;
     private bool grounded = false;
-    private float epsilon = 0.05f;
+    private float lastTimePressedJump = -100.0f;
+    private float lastTimeGrounded = -100.0f;
+    private readonly float epsilon = 0.05f;
+    private readonly float jumpBuffer = 0.1f;
+    private readonly float coyoteTime = 0.1f;
 
     // Start is called before the first frame update
     void Start()
@@ -66,17 +78,39 @@ public class PlayerController : Singleton<PlayerController>
             }
         }
 
-        //Ground checking
-        grounded = Physics2D.BoxCast(col.bounds.center, col.bounds.size * 0.95f, 0f, Vector2.down, 0.2f, terrainLayer);
+        rb.velocity = new Vector2(xSpeed, rb.velocity.y);
 
-
-        //Jump
-        if (InputHandler.Instance.Jump.down && grounded)
-        {
-            rb.velocity = new Vector2(xSpeed, jumpPower);
-        }
+        //Sprite flipping
+        if (xSpeed < 0)
+            spriteRenderer.flipX = true;
         else
-            rb.velocity = new Vector2(xSpeed, rb.velocity.y);
+        {
+            if (xSpeed > 0)
+                spriteRenderer.flipX = false;
+        }
+
+        //Ground checking
+        bool lastGrounded = grounded;
+        grounded = Physics2D.BoxCast(col.bounds.center, col.bounds.size * 0.99f, 0f, Vector2.down, 0.2f, terrainLayer);
+
+        //Get last time grounded
+        if ((lastGrounded == true) && (grounded == false))
+            lastTimeGrounded = Time.time;
+
+        //Jump - grounded
+        if (InputHandler.Instance.Jump.down)
+        {
+            if (grounded || (Time.time - lastTimeGrounded <= coyoteTime))
+                Jump();
+            else
+                lastTimePressedJump = Time.time;
+        }
+        //Jump - buffered
+        if ((lastGrounded == false) && (grounded == true))
+        {
+            if (Time.time - lastTimePressedJump <= jumpBuffer)
+                Jump();
+        }
 
 
         //Space release gravity
@@ -90,5 +124,37 @@ public class PlayerController : Singleton<PlayerController>
             rb.velocity -= new Vector2(0, gravUp * Time.deltaTime);
         else
             rb.velocity -= new Vector2(0, gravDown * Time.deltaTime);
+
+
+        //Set animation states
+        if (grounded)
+        {
+            ChangeAnimationState(PLAYER_IDLE);
+        }
+        else
+        {
+            if (rb.velocity.y >= 0)
+                ChangeAnimationState(PLAYER_JUMP_UP);
+            else
+                ChangeAnimationState(PLAYER_JUMP_DOWN);
+        }
+    }
+
+    private void Jump()
+    {
+        rb.velocity = new Vector2(rb.velocity.x, jumpPower);
+    }
+
+    private void ChangeAnimationState(string _newState)
+    {
+        //Stop same animation from interrupting itself
+        if (currentState == _newState)
+            return;
+
+        //Play new animation
+        anim.Play(_newState);
+
+        //Update current anim state var
+        currentState = _newState;
     }
 }

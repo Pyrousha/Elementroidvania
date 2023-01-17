@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1778934032}
   - component: {fileID: 1778934036}
   - component: {fileID: 1778934035}
+  - component: {fileID: 1778934039}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -77,8 +78,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0, g: 0, b: 1, a: 1}
+  m_Sprite: {fileID: 21300000, guid: 1835683445a5ed84abec67bd0a9e8078, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -126,14 +127,14 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 1.5, y: 2}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1.5, y: 2}
   m_EdgeRadius: 0
 --- !u!114 &1778934035
 MonoBehaviour:
@@ -149,16 +150,38 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 1778934032}
   col: {fileID: 1778934036}
-  accelSpeed: 200
-  frictionSpeed: 100
-  maxSpeed: 8
-  jumpPower: 15
-  gravUp: 30
-  gravDown: 45
-  spaceReleaseGravMult: 0.75
+  spriteRenderer: {fileID: 7248393260635745444}
+  anim: {fileID: 1778934039}
+  accelSpeed: 300
+  frictionSpeed: 200
+  maxSpeed: 12.5
+  jumpPower: 30
+  gravUp: 70
+  gravDown: 95
+  spaceReleaseGravMult: 0.6
   terrainLayer:
     serializedVersion: 2
     m_Bits: 128
+--- !u!95 &1778934039
+Animator:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2585460984887775189}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: c97eb931a528ea545adefe94b53daef8, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &8763018856630740176
 GameObject:
   m_ObjectHideFlags: 0
