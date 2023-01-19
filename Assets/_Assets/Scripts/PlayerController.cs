@@ -58,7 +58,7 @@ public class PlayerController : Singleton<PlayerController>
     private const float coyoteTime = 0.1f;
 
     #region Afterimage
-    private const float secsPerAfterimage = 0.05f;
+    private const float secsPerAfterimage = 0.01f;
     private float lastTimeSpawnedAfterimage = -100.0f;
     #endregion
 
@@ -154,13 +154,13 @@ public class PlayerController : Singleton<PlayerController>
         //Jump - grounded
         if (InputHandler.Instance.Jump.down)
         {
-            if (grounded || (Time.time - lastTimeGrounded <= coyoteTime))
+            if (CanMove && (grounded || (Time.time - lastTimeGrounded <= coyoteTime)))
                 Jump();
             else
                 lastTimePressedJump = Time.time;
         }
         //Jump - buffered
-        if ((lastGrounded == false) && (grounded == true))
+        if (CanMove && (grounded == true))
         {
             if (Time.time - lastTimePressedJump <= jumpBuffer)
                 Jump();

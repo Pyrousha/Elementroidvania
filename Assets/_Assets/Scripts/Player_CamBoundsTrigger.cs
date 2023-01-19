@@ -23,8 +23,10 @@ public class Player_CamBoundsTrigger : MonoBehaviour
     void Update()
     {
         if ((currLerp != null) || (!isCurrLerpNull))
+        {
+            Debug.Log("currently lerping, do not move camera");
             return; //Don't move camera if lerping
-
+        }
 
         if (currCamBounds != null)
             cameraTransform.position = currCamBounds.ClampPosition(new Vector3(transform.position.x, transform.position.y, zOffset));
@@ -58,9 +60,12 @@ public class Player_CamBoundsTrigger : MonoBehaviour
 
     IEnumerator LerpToNewScreen(Vector3 _targPos)
     {
+        yield return null;
+
         while (true)
         {
             float currDist = Vector3.Distance(cameraTransform.position, _targPos);
+            //Debug.Log("currdist: " + currDist + $" currPos: {cameraTransform.position}, targPos: {_targPos}");
             if (currDist > 0.1f)
             {
                 //Not close enough, keep lerping
@@ -76,8 +81,8 @@ public class Player_CamBoundsTrigger : MonoBehaviour
 
         //Close enough, end lerp
         cameraTransform.position = _targPos;
+        //Debug.Log("Set curr lerp to null");
         currLerp = null;
-        Debug.Log("Set Curr Lerp to Null");
         isCurrLerpNull = true;
     }
 }

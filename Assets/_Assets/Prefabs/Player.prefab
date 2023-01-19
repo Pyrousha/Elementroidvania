@@ -148,6 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ef9228b9154afe468eb032df2e442cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  afterimagePrefab: {fileID: 6728067167657496833, guid: 30cadf20e3cf2514c8bfdfe7df7a2b2f, type: 3}
   rb: {fileID: 1778934032}
   col: {fileID: 1778934036}
   spriteRenderer: {fileID: 7248393260635745444}
@@ -155,12 +156,12 @@ MonoBehaviour:
   accelSpeed: 300
   frictionSpeed: 200
   maxSpeed: 12.5
-  jumpPower: 30
+  jumpPower: 26
   gravUp: 70
   gravDown: 95
   spaceReleaseGravMult: 0.6
-  drillPower: 30
-  drillDuration: 0.35
+  drillPower: 25
+  drillDuration: 0.25
   terrainLayer:
     serializedVersion: 2
     m_Bits: 128

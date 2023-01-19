@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class CameraBounds : MonoBehaviour
 {
-    private static readonly float camHeight = 22.5f;
-    private static readonly float camWidth = 40.0f;
+    private const float camHeight = 16.875f;
+    private const float camWidth = 30.0f;
 
     private float top;
     private float bottom;
@@ -20,6 +20,8 @@ public class CameraBounds : MonoBehaviour
         bottom = cameraBounds.bounds.min.y + camHeight / 2.0f;
         left = cameraBounds.bounds.min.x + camWidth / 2.0f;
         right = cameraBounds.bounds.max.x - camWidth / 2.0f;
+
+        Debug.Log($"top: {top}, bottom: {bottom}, left: {left}, right {right}");
     }
 
     /// <summary>
