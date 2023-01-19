@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class PlayerController : Singleton<PlayerController>
 {
-    [Header("References")]
+    [Header("External References")]
+    [SerializeField] private GameObject afterimagePrefab;
+
+    [Header("Self-References")]
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private BoxCollider2D col;
     [SerializeField] private SpriteRenderer spriteRenderer;
@@ -53,6 +56,11 @@ public class PlayerController : Singleton<PlayerController>
     private const float epsilon = 0.05f;
     private const float jumpBuffer = 0.1f;
     private const float coyoteTime = 0.1f;
+
+    #region Afterimage
+    private const float secsPerAfterimage = 0.05f;
+    private float lastTimeSpawnedAfterimage = -100.0f;
+    #endregion
 
 
     /// <summary>
@@ -207,6 +215,12 @@ public class PlayerController : Singleton<PlayerController>
                 }
             case DrillStateEnum.Drilling:
                 {
+                    if (Time.time - lastTimeSpawnedAfterimage >= secsPerAfterimage)
+                    {
+                        Afterimage.SpawnAfterimage(afterimagePrefab, transform.position, spriteRenderer);
+                        lastTimeSpawnedAfterimage = Time.time;
+                    }
+
                     drillTimer -= Time.deltaTime;
                     if (drillTimer <= 0)
                     {
@@ -264,9 +278,9 @@ public class PlayerController : Singleton<PlayerController>
         rb.velocity = new Vector2(rb.velocity.x, jumpPower);
     }
 
-    private void Drill()
+    private void SpawnAfterimage()
     {
-
+        lastTimeSpawnedAfterimage = Time.time;
     }
 
     private void ChangeAnimationState(PlayerAnimStateEnum _newState)

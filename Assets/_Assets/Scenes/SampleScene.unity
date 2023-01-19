@@ -1518,13 +1518,9 @@ PrefabInstance:
     m_TransformParent: {fileID: 942210780}
     m_Modifications:
     - target: {fileID: 1778934035, guid: 2be64614cb261b748869ac28959b8315, type: 3}
-      propertyPath: drillPower
-      value: 30
-      objectReference: {fileID: 0}
-    - target: {fileID: 1778934035, guid: 2be64614cb261b748869ac28959b8315, type: 3}
-      propertyPath: drillDuration
-      value: 0.35
-      objectReference: {fileID: 0}
+      propertyPath: afterimagePrefab
+      value: 
+      objectReference: {fileID: 6728067167657496833, guid: 30cadf20e3cf2514c8bfdfe7df7a2b2f, type: 3}
     - target: {fileID: 2585460984887775189, guid: 2be64614cb261b748869ac28959b8315, type: 3}
       propertyPath: m_Name
       value: Player
