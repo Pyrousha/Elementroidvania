@@ -12,6 +12,10 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] private BoxCollider2D col;
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Animator anim;
+    [Space(5)]
+    [SerializeField] private GameObject feetVFX_left;
+    [SerializeField] private GameObject feetVFX_right;
+
     private PlayerAnimStateEnum currentAnimation;
 
     //Animation states
@@ -133,19 +137,32 @@ public class PlayerController : Singleton<PlayerController>
         }
 
 
-        //Sprite flipping
-        if (rb.velocity.x < 0)
+        //Sprite flipping + spark vfx
+        bool leftVFXActive = false;
+        bool rightVFXActive = false;
+        if (rb.velocity.x < -epsilon)
+        {
             spriteRenderer.flipX = true;
+            leftVFXActive = true;
+        }
         else
         {
-            if (rb.velocity.x > 0)
+            if (rb.velocity.x > epsilon)
+            {
                 spriteRenderer.flipX = false;
+                rightVFXActive = true;
+            }
         }
 
 
         //Ground checking
         bool lastGrounded = grounded;
         grounded = Physics2D.BoxCast(col.bounds.center, col.bounds.size * 0.99f, 0f, Vector2.down, 0.2f, terrainLayer);
+
+        //Set spark vfx
+        feetVFX_left.SetActive(leftVFXActive && grounded);
+        feetVFX_right.SetActive(rightVFXActive && grounded);
+
 
         //Get last time grounded
         if ((lastGrounded == true) && (grounded == false))
