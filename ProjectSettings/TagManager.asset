@@ -8,17 +8,17 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
   - Entity
   - Terrain
+  - Player Hitbox
+  - Player Hurtbox
+  - Enemy Hitbox
+  - Enemy Hurtbox
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Pickup
   - 
   - 
   - 
