@@ -6758,6 +6758,10 @@ PrefabInstance:
     serializedVersion: 2
     m_TransformParent: {fileID: 942210780}
     m_Modifications:
+    - target: {fileID: 1778934032, guid: 2be64614cb261b748869ac28959b8315, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: 9e30b93f143ff5a4295a68f038fffb4a, type: 2}
     - target: {fileID: 1778934035, guid: 2be64614cb261b748869ac28959b8315, type: 3}
       propertyPath: feetVFX_left
       value: 
@@ -6766,6 +6770,14 @@ PrefabInstance:
       propertyPath: feetVFX_right
       value: 
       objectReference: {fileID: 323691051}
+    - target: {fileID: 1778934035, guid: 2be64614cb261b748869ac28959b8315, type: 3}
+      propertyPath: frictionSpeed_Air
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 1778934035, guid: 2be64614cb261b748869ac28959b8315, type: 3}
+      propertyPath: frictionSpeed_Ground
+      value: 200
+      objectReference: {fileID: 0}
     - target: {fileID: 2585460984887775189, guid: 2be64614cb261b748869ac28959b8315, type: 3}
       propertyPath: m_Name
       value: Player

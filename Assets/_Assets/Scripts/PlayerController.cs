@@ -38,7 +38,8 @@ public class PlayerController : Singleton<PlayerController>
 
     [Header("Parameters")]
     [SerializeField] private float accelSpeed;
-    [SerializeField] private float frictionSpeed;
+    [SerializeField] private float frictionSpeed_Ground;
+    [SerializeField] private float frictionSpeed_Air;
     [SerializeField] private float maxSpeed;
     [SerializeField] private float jumpPower;
     [Space(5)]
@@ -85,10 +86,12 @@ public class PlayerController : Singleton<PlayerController>
     // Update is called once per frame
     void Update()
     {
+        //Ground checking
+        bool lastGrounded = grounded;
+        grounded = (rb.velocity.y < 1.0f) && Physics2D.BoxCast(col.bounds.center, col.bounds.size * 0.99f, 0f, Vector2.down, 0.1f, terrainLayer);
+
         if (CanMove)
         {
-            xSpeed = rb.velocity.x;
-
             //Accelerate + Friction
             float inputX = InputHandler.Instance.Direction.x;
             if (inputX < -epsilon) //Pressing left
@@ -100,8 +103,11 @@ public class PlayerController : Singleton<PlayerController>
                 }
                 else
                 {
-                    //Apply friction
-                    xSpeed = Mathf.Min(xSpeed + frictionSpeed * Time.deltaTime, -maxSpeed);
+                    //Apply friction for when moving over max speed
+                    if (grounded)
+                        xSpeed = Mathf.Min(xSpeed + frictionSpeed_Ground * Time.deltaTime, -maxSpeed);
+                    else
+                        xSpeed = Mathf.Min(xSpeed + frictionSpeed_Air * Time.deltaTime, -maxSpeed);
                 }
             }
             else
@@ -115,8 +121,11 @@ public class PlayerController : Singleton<PlayerController>
                     }
                     else
                     {
-                        //Apply friction
-                        xSpeed = Mathf.Max(xSpeed - frictionSpeed * Time.deltaTime, maxSpeed);
+                        //Apply friction for when moving over max speed
+                        if (grounded)
+                            xSpeed = Mathf.Max(xSpeed - frictionSpeed_Ground * Time.deltaTime, maxSpeed);
+                        else
+                            xSpeed = Mathf.Max(xSpeed - frictionSpeed_Air * Time.deltaTime, maxSpeed);
                     }
                 }
                 else //pressing nothing
@@ -127,7 +136,11 @@ public class PlayerController : Singleton<PlayerController>
                         sign = -1;
 
                     //Not pressing anything, subtract friction and update speed
-                    float newSpeedMagnitude = Mathf.Max(0, Mathf.Abs(xSpeed) - frictionSpeed * Time.deltaTime);
+                    float newSpeedMagnitude;
+                    if (grounded)
+                        newSpeedMagnitude = Mathf.Max(0, Mathf.Abs(xSpeed) - frictionSpeed_Ground * Time.deltaTime);
+                    else
+                        newSpeedMagnitude = Mathf.Max(0, Mathf.Abs(xSpeed) - frictionSpeed_Air * Time.deltaTime);
                     xSpeed = newSpeedMagnitude * sign;
                 }
             }
@@ -155,10 +168,6 @@ public class PlayerController : Singleton<PlayerController>
         }
 
 
-        //Ground checking
-        bool lastGrounded = grounded;
-        grounded = Physics2D.BoxCast(col.bounds.center, col.bounds.size * 0.99f, 0f, Vector2.down, 0.2f, terrainLayer);
-
         //Set spark vfx
         feetVFX_left.SetActive(leftVFXActive && grounded);
         feetVFX_right.SetActive(rightVFXActive && grounded);
@@ -171,13 +180,13 @@ public class PlayerController : Singleton<PlayerController>
         //Jump - grounded
         if (InputHandler.Instance.Jump.down)
         {
-            if (CanMove && (grounded || (Time.time - lastTimeGrounded <= coyoteTime)))
+            if ((grounded || (Time.time - lastTimeGrounded <= coyoteTime)))
                 Jump();
             else
                 lastTimePressedJump = Time.time;
         }
         //Jump - buffered
-        if (CanMove && (grounded == true))
+        if ((grounded == true))
         {
             if (Time.time - lastTimePressedJump <= jumpBuffer)
                 Jump();
@@ -199,6 +208,7 @@ public class PlayerController : Singleton<PlayerController>
                         if (InputHandler.Instance.Direction.y < -0.6f)
                         {
                             //Drill down
+                            xSpeed = 0;
                             rb.velocity = new Vector2(0, -drillPower);
 
                             ChangeAnimationState(PlayerAnimStateEnum.Player_Drill_Down);
@@ -212,18 +222,20 @@ public class PlayerController : Singleton<PlayerController>
                             if (Mathf.Abs(inputX) >= epsilon)
                             {
                                 if (inputX > 0) //Dash right
-                                    rb.velocity = new Vector2(drillPower, 0);
+                                    xSpeed = drillPower;
                                 else //Dash left
-                                    rb.velocity = new Vector2(-drillPower, 0);
+                                    xSpeed = -drillPower;
                             }
                             else
                             {
                                 //not holding a direction, dash in direction player is facing
                                 if (!spriteRenderer.flipX) //dash right
-                                    rb.velocity = new Vector2(drillPower, 0);
+                                    xSpeed = drillPower;
                                 else //Dash left
-                                    rb.velocity = new Vector2(-drillPower, 0);
+                                    xSpeed = -drillPower;
                             }
+
+                            rb.velocity = new Vector2(xSpeed, 0);
 
                             ChangeAnimationState(PlayerAnimStateEnum.Player_Drill_Right);
                         }
@@ -240,11 +252,7 @@ public class PlayerController : Singleton<PlayerController>
 
                     drillTimer -= Time.deltaTime;
                     if (drillTimer <= 0)
-                    {
-                        //End drill
-                        useGravity = true;
-                        drillState = DrillStateEnum.Cooldown;
-                    }
+                        EndDrill();
                     break;
                 }
             case DrillStateEnum.Cooldown:
@@ -290,9 +298,20 @@ public class PlayerController : Singleton<PlayerController>
         }
     }
 
+    private void EndDrill()
+    {
+        useGravity = true;
+        drillState = DrillStateEnum.Cooldown;
+    }
+
     private void Jump()
     {
+        if (drillState == DrillStateEnum.Drilling)
+            EndDrill();
+
         rb.velocity = new Vector2(rb.velocity.x, jumpPower);
+
+        grounded = false;
     }
 
     private void SpawnAfterimage()
