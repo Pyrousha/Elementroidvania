@@ -112,11 +112,11 @@ public class InputHandler : Singleton<InputHandler>
             x++;
 
         Vector2 dir = new Vector2(x, y);
-        dir = dir.normalized;
 
-        //Debug.Log(dir);
+        if (dir.magnitude > 0.10f) //Player is definitely pressing something
+            return dir.normalized;
 
-        return dir;
+        return new Vector2(0, 0);
     }
 
     private Vector2 direction;
