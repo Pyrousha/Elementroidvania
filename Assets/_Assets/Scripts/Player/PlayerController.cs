@@ -338,7 +338,10 @@ public class PlayerController : Singleton<PlayerController>
     private void Jump()
     {
         if (drillState == DrillStateEnum.Drilling)
-            EndDrill();
+        {
+            useGravity = true;
+            drillState = DrillStateEnum.Charged;
+        }
 
         rb.velocity = new Vector2(rb.velocity.x, jumpPower);
 
